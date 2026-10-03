@@ -7,8 +7,8 @@ import telebot
 from telebot.types import InputMediaPhoto, InputMediaVideo
 from bs4 import BeautifulSoup
 
-TELEGRAM_TOKEN = os.environ['8864255092:AAEqoY1Km_8vYJPdClV3NvxJ9BxKSH0Txms']
-GEMINI_KEY = os.environ['AQ.Ab8RN6KfsVTO9fYteR55p-15M3EVv6qzlUhsoggCVx4dNOc4nQ']
+TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
+GEMINI_KEY = os.environ['GEMINI_KEY']
 GEMINI_MODELS = ['gemini-flash-latest', 'gemini-flash-lite-latest']
 
 CHANNEL_ID = '@blaugrana_kaz'
