@@ -225,8 +225,8 @@ def main():
         elif SHOW_SOURCE:
             post += f'\n\n🔗 https://t.me/{post_id}'
         try:
-            send_post(post, photos, videos)
             mark_sent(sent, post_id)
+            send_post(post, photos, videos)
             print(f'Жіберілді: {post_id} (сурет: {len(photos)}, видео: {len(videos)})')
             time.sleep(5)
         except Exception as ex:
