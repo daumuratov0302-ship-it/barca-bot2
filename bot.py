@@ -126,7 +126,7 @@ def ask_gemini(text, model):
     url = ('https://generativelanguage.googleapis.com/v1beta/models/'
            f'{model}:generateContent')
     body = {'contents': [{'parts': [{'text': PROMPT + text}]}]}
-    r = requests.post(url, json=body, timeout=60,
+    r = requests.post(url, json=body, timeout=25,
                       headers={'x-goog-api-key': GEMINI_KEY})
     r.raise_for_status()
     return r.json()['candidates'][0]['content']['parts'][0]['text'].strip()
@@ -137,7 +137,7 @@ def make_post(text):
     if not text:
         return None
     for model in GEMINI_MODELS:
-        for wait in (5, 15):
+        for wait in (3, 8):
             try:
                 result = ask_gemini(text, model)
                 if result and not re.search(r'[\u0600-\u06FF]', result):
