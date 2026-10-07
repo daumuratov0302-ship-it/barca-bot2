@@ -64,6 +64,7 @@ PROMPT = """Сен қазақ тіліндегі Барселона жанкүй
 - <b> және </b> тегтерінен басқа ешқандай HTML не Markdown белгісін қолданма.
 - Тек дайын постты жаз, түсініктеме немесе тырнақша қоспа.
 - Егер жазба футболға немесе Барселонаға қатысты емес болса (діни мазмұн: дұға, аят, таңғы дұға, діни құттықтау; жарнама), ешқандай пост жазба, тек SKIP деп жауап бер.
+- Ешқандай сілтеме (URL) және @ атау жазба.
 
 Жазба:
 """
@@ -89,7 +90,16 @@ def fix_emojis(text_div):
     for em in text_div.select('tg-emoji, i.emoji'):
         fb = em.get_text().strip()
         em.replace_with(fb if fb and len(fb) <= 12 else DEFAULT_EMOJI)
-        
+     
+def strip_links(text):
+    text = re.sub(r'https?://\S+', '', text)
+    text = re.sub(r'\b(?:www\.|t\.me/)\S+', '', text)
+    text = re.sub(r'(?<!\w)@\w+', '', text)
+    text = re.sub(r'[ \t]+\n', '\n', text)
+    text = re.sub(r'[ \t]{2,}', ' ', text)
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    return text.strip()
+
 def clean_emoji_junk(text):
     # арнайы смайликтің ұзын коды немесе сілтемесі қалып қойса, 📸 қояды
     text = re.sub(r'tg://emoji\?id=\d+', DEFAULT_EMOJI, text)
@@ -116,7 +126,7 @@ def fetch_posts():
         fix_emojis(text_div)
         for br in text_div.find_all('br'):
             br.replace_with('\n')
-        text = clean_emoji_junk(text_div.get_text()).strip()
+        text = strip_links(clean_emoji_junk(text_div.get_text()))
         if not text:
             continue
         photos = []
@@ -312,10 +322,7 @@ def main():
         if not post:
             print(f'Пост жасалмады, кейін қайталаймыз: {post_id}')
             continue
-        if missing_video:
-            post += f'\n\n🎬 Видео: https://t.me/{post_id}'
-        elif SHOW_SOURCE:
-            post += f'\n\n🔗 https://t.me/{post_id}'
+        post = strip_links(post)
         try:
             post = to_html(post)
             mark_sent(sent, post_id)
