@@ -70,6 +70,21 @@ def mark_sent(sent, post_id):
     with open(SENT_FILE, 'a', encoding='utf-8') as f:
         f.write(post_id + '\n')
 
+DEFAULT_EMOJI = '📸'
+
+
+def fix_emojis(text_div):
+    for em in text_div.select('tg-emoji, i.emoji'):
+        fb = em.get_text().strip()
+        em.replace_with(fb if fb and len(fb) <= 12 else DEFAULT_EMOJI)
+        
+def clean_emoji_junk(text):
+    # арнайы смайликтің ұзын коды немесе сілтемесі қалып қойса, 📸 қояды
+    text = re.sub(r'tg://emoji\?id=\d+', DEFAULT_EMOJI, text)
+    text = re.sub(r'https?://\S*emoji\S*', DEFAULT_EMOJI, text, flags=re.I)
+    text = re.sub(r'\b\d{12,}\b', DEFAULT_EMOJI, text)
+    text = re.sub(rf'({re.escape(DEFAULT_EMOJI)}\s*){{2,}}', DEFAULT_EMOJI + ' ', text)
+    return text
 
 def fetch_posts():
     try:
@@ -86,9 +101,10 @@ def fetch_posts():
         text_div = msg.select_one('div.tgme_widget_message_text')
         if not post_id or not text_div:
             continue
+        fix_emojis(text_div)
         for br in text_div.find_all('br'):
             br.replace_with('\n')
-        text = text_div.get_text().strip()
+        text = clean_emoji_junk(text_div.get_text()).strip()
         if not text:
             continue
         photos = []
