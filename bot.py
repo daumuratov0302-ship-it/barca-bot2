@@ -22,7 +22,7 @@ SENT_FILE = 'sent_tg.txt'
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 PROMPT = """Сен қазақ тіліндегі Барселона жанкүйерлерінің Telegram арнасының редакторысың.
-Төмендегі араб тіліндегі жазба негізінде қазақ тілінде қысқа, жатық Telegram посты жаз.
+Төмендегі араб тіліндегі жазба негізінде қазақ тілінде жатық Telegram посты жаз. Жаңалық пен статистиканы қысқа жаз, ал сұхбатты толық сақта.
 
 Алдымен жазбаның түрін анықта да, сәйкес пішімді қолдан:
 
@@ -40,6 +40,7 @@ PROMPT = """Сен қазақ тіліндегі Барселона жанкүй
 ❓ сұрақ?
 🗣 жауап
 Бірнеше сұрақ-жауап болса, осы пішімді қайталай бер. Кім сөйлегенін бірінші жолда көрсет.
+Сұхбатта барлық сұрақ-жауапты қалдыр, ешқайсысын қысқартпа және біріктірме.
 
 Жалпы ережелер:
 - Сөзбе-сөз аударма емес, табиғи, жатық қазақша жаз.
@@ -225,7 +226,20 @@ def send_post(text, photo_urls, video_urls):
     if not fits:
         bot.send_message(CHANNEL_ID, text[:4000], parse_mode='HTML')
 
+def norm(t):
+    return re.sub(r'[\W_]+', ' ', strip_footer(t).lower()).strip()
 
+def is_repeat(text, posts, sent, own_id):
+    n = norm(text)[:80]
+    if len(n) < 40:
+        return False
+    for pid, t, *_ in posts:
+        if pid == own_id or pid not in sent:
+            continue
+        if norm(t)[:80] == n:
+            return True
+    return False
+    
 def main():
     sent = load_sent()
     posts = fetch_posts()
@@ -246,6 +260,10 @@ def main():
         return
 
     for post_id, text, photos, videos, missing_video in new[-MAX_PER_CHECK:]:
+        if is_repeat(text, posts, sent, post_id):
+            print(f'Қайталанған пост өткізілді: {post_id}')
+            mark_sent(sent, post_id)
+            continue
         post = make_post(text)
         if not post:
             print(f'Пост жасалмады, кейін қайталаймыз: {post_id}')
