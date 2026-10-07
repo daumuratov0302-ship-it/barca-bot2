@@ -56,6 +56,7 @@ PROMPT = """Сен қазақ тіліндегі Барселона жанкүй
 - Постағы маңызды жерлерді (аты-жөндер, сандар, есеп, негізгі факт) <b>...</b> тегімен қалың шрифт ет. Бір постта 2-4 жерден артық белгілеме.
 - <b> және </b> тегтерінен басқа ешқандай HTML не Markdown белгісін қолданма.
 - Тек дайын постты жаз, түсініктеме немесе тырнақша қоспа.
+- Егер жазба футболға немесе Барселонаға қатысты емес болса (діни мазмұн: дұға, аят, таңғы дұға, діни құттықтау; жарнама), ешқандай пост жазба, тек SKIP деп жауап бер.
 
 Жазба:
 """
@@ -259,6 +260,14 @@ def is_repeat(text, posts, sent, own_id):
         if norm(t)[:80] == n:
             return True
     return False
+
+RELIGIOUS = ['اللهم', 'استغفر الله', 'سبحان الله', 'لا إله إلا الله',
+    'أذكار', 'دعاء', 'القرآن', 'تلاوة', 'صلاة الفجر',
+    'جمعة مباركة', 'آية',]
+
+
+def is_religious(text):
+    return any(w in text for w in RELIGIOUS) 
     
 def main():
     sent = load_sent()
@@ -284,7 +293,15 @@ def main():
             print(f'Қайталанған пост өткізілді: {post_id}')
             mark_sent(sent, post_id)
             continue
+        if is_religious(text):
+            print(f'Діни пост өткізілді: {post_id}')
+            mark_sent(sent, post_id)
+            continue
         post = make_post(text)
+        if post and post.strip().upper().startswith('SKIP'):
+            print(f'Футболға қатысты емес, өткізілді: {post_id}')
+            mark_sent(sent, post_id)
+            continue
         if not post:
             print(f'Пост жасалмады, кейін қайталаймыз: {post_id}')
             continue
