@@ -1200,3 +1200,5 @@ FCBarcelona_Arabic/335370
 FCBarcelona_Arabic/335371
 FCBarcelona_Arabic/335372
 FCBarcelona_Arabic/335378
+FCBarcelona_Arabic/335379
+FCBarcelona_Arabic/335380
