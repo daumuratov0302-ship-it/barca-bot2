@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 
 TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
 GEMINI_KEY = os.environ['GEMINI_KEY']
-GEMINI_MODELS = ['gemini-flash-latest', 'gemini-flash-lite-latest']
+GEMINI_MODELS = ['gemini-flash-lite-latest', 'gemini-flash-latest']
 
 CHANNEL_ID = '@barcelonakz1'
 SOURCE = 'FCBarcelona_Arabic'
@@ -342,7 +342,7 @@ def main():
             mark_sent(sent, post_id)
             send_post(post, photos, videos)
             print(f'Жіберілді: {post_id} (сурет: {len(photos)}, видео: {len(videos)})')
-            time.sleep(5)
+            time.sleep(12)
         except Exception as ex:
             print(f'Жіберу қатесі: {ex}')
 
