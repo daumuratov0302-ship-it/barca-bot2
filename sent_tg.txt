@@ -1729,3 +1729,6 @@ FCBarcelona_Arabic/336077
 FCBarcelona_Arabic/336078
 FCBarcelona_Arabic/336079
 FCBarcelona_Arabic/336080
+FCBarcelona_Arabic/336073
+FCBarcelona_Arabic/336081
+FCBarcelona_Arabic/336082
