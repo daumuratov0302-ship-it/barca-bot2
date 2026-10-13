@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 
 TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
 GEMINI_KEY = os.environ['GEMINI_KEY']
-GEMINI_MODELS = ['gemini-flash-lite-latest', 'gemini-flash-latest']
+GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-flash-latest']
 
 CHANNEL_ID = '@barcelonakz1'
 SOURCE = 'FCBarcelona_Arabic'
@@ -169,21 +169,28 @@ def ask_gemini(text, model):
     r.raise_for_status()
     return r.json()['candidates'][0]['content']['parts'][0]['text'].strip()
 
-    
+
 def make_post(text):
     text = strip_footer(text)
     if not text:
         return None
+    time.sleep(6)  # посттар арасындағы үзіліс
     for model in GEMINI_MODELS:
-        for wait in (3, 8):
+        for attempt in range(3):
             try:
                 result = ask_gemini(text, model)
-                if result and not re.search(r'[\u0600-\u06FF]', result):
+                if result and not re.search(r'[\u0600-\u06FF]', result) and is_kazakh(result):
                     return strip_footer(result)
                 print('Жауап жарамсыз, қайталаймыз.')
+            except requests.HTTPError as e:
+                code = e.response.status_code
+                print(f'Gemini ({model}) қатесі: {code}')
+                if code == 429:
+                    break  # лимит бітті, келесі модельге өтеміз
+                time.sleep(5 * (attempt + 1))  # 503 және т.б.: күтіп қайталаймыз
             except Exception as e:
                 print(f'Gemini ({model}) қатесі: {str(e)[:70]}')
-            time.sleep(wait)
+                time.sleep(5 * (attempt + 1))
     return None
 
 
