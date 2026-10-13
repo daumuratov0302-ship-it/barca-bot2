@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 
 TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
 GEMINI_KEY = os.environ['GEMINI_KEY']
-GEMINI_MODELS = ['gemini-flash-lite-latest', 'gemini-flash-latest']
+GEMINI_MODELS = ['gemini-flash-latest', 'gemini-flash-lite-latest']
 
 CHANNEL_ID = '@barcelonakz1'
 SOURCE = 'FCBarcelona_Arabic'
@@ -64,6 +64,7 @@ PROMPT = """Сен қазақ тіліндегі Барселона жанкүй
 - Түсінікті жерлерді өзгертпе. Тек қазақша түсініксіз немесе табиғи емес шыққан сөйлемді ғана, мағынасын сақтап, қарапайым айқын сөйлеммен қайта жаз. Ештеңе ойдан қоспа.
 - Егер жазба газет немесе журналдың мұқабасы / бірінші беті туралы болса (Mundo Deportivo, Sport, AS, Marca сияқты басылымдардың бүгінгі мұқабасы, "мұқабада не жазылған" тәрізді), пост жазба, тек SKIP деп жауап бер.
 - ❗️ белгісінен кейін "Жаңалық", "Жаңалық:" деген сөзді ЖАЗБА. ❗️ белгісінен кейін бірден жаңалықтың мәтінін жаз. Матч кезіндегі оқиғаларды (гол, сары немесе қызыл қағаз, алмастыру) да осылай жаз, мысалы: ❗️ Ольмо сары қағаз алды.
+- Постты ТЕК қазақ тілінде жаз. Орыс немесе ағылшын тілінде жазба.
 
 Жазба:
 """
@@ -168,7 +169,13 @@ def ask_gemini(text, model):
     r.raise_for_status()
     return r.json()['candidates'][0]['content']['parts'][0]['text'].strip()
 
-
+def is_kazakh(text):
+    cyr = [c for c in text if '\u0400' <= c <= '\u04FF']
+    if len(cyr) < 40:
+        return True
+    kz = sum(c in 'әғқңөұүһіӘҒҚҢӨҰҮҺІ' for c in cyr)
+    return kz / len(cyr) > 0.02
+    
 def make_post(text):
     text = strip_footer(text)
     if not text:
@@ -177,7 +184,7 @@ def make_post(text):
         for wait in (3, 8):
             try:
                 result = ask_gemini(text, model)
-                if result and not re.search(r'[\u0600-\u06FF]', result):
+                if result and not re.search(r'[\u0600-\u06FF]', result) and is_kazakh(result):
                     return strip_footer(result)
                 print('Жауап жарамсыз, қайталаймыз.')
             except Exception as e:
