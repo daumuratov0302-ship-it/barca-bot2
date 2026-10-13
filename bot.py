@@ -169,12 +169,6 @@ def ask_gemini(text, model):
     r.raise_for_status()
     return r.json()['candidates'][0]['content']['parts'][0]['text'].strip()
 
-def is_kazakh(text):
-    cyr = [c for c in text if '\u0400' <= c <= '\u04FF']
-    if len(cyr) < 40:
-        return True
-    kz = sum(c in 'әғқңөұүһіӘҒҚҢӨҰҮҺІ' for c in cyr)
-    return kz / len(cyr) > 0.02
     
 def make_post(text):
     text = strip_footer(text)
@@ -184,7 +178,7 @@ def make_post(text):
         for wait in (3, 8):
             try:
                 result = ask_gemini(text, model)
-                if result and not re.search(r'[\u0600-\u06FF]', result) and is_kazakh(result):
+                if result and not re.search(r'[\u0600-\u06FF]', result):
                     return strip_footer(result)
                 print('Жауап жарамсыз, қайталаймыз.')
             except Exception as e:
