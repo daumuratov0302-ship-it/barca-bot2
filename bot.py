@@ -10,7 +10,8 @@ from bs4 import BeautifulSoup
 
 TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
 GEMINI_KEY = os.environ['GEMINI_KEY']
-GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-flash-latest']
+GEMINI_MODELS = ['gemini-3.5-flash', 'gemini-3.5-flash-lite',
+                 'gemini-3.1-flash-lite', 'gemini-flash-latest']
 
 CHANNEL_ID = '@barcelonakz1'
 SOURCE = 'FCBarcelona_Arabic'
