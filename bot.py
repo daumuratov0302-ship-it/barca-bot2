@@ -16,6 +16,8 @@ CHANNEL_ID = '@barcelonakz1'
 SOURCE = 'FCBarcelona_Arabic'
 MAX_PER_CHECK = 5
 MAX_VIDEO_MB = 45
+MAX_RUN_SECONDS = 240  # бір іске қосудың жалпы уақыт шегі
+START_TIME = time.time()
 GEMINI_MIN_GAP = 7  # сұраулар арасындағы ең аз үзіліс (секунд), 429 болмауы үшін
 SENT_FILE = 'sent_tg.txt'
 
@@ -186,7 +188,7 @@ def ask_gemini(text, model):
            f'{model}:generateContent')
     body = {'contents': [{'parts': [{'text': PROMPT + text}]}]}
     throttle()
-    r = requests.post(url, json=body, timeout=60,
+    r = requests.post(url, json=body, timeout=(10, 40),
                       headers={'x-goog-api-key': GEMINI_KEY})
     if r.status_code == 429:
         raise RateLimited(retry_delay(r))
@@ -215,13 +217,19 @@ def make_post(text):
                     return strip_footer(result)
                 print('Жауап жарамсыз, қайталаймыз.')
             except RateLimited as e:
-                if e.delay is None or e.delay > 65 or attempt == 1:
+                if e.delay is None or e.delay > 20 or attempt == 1:
                     kind = 'тәуліктік' if e.delay is None else 'минуттық'
                     print(f'{model}: {kind} лимит толды, келесі модельге өтеміз.')
                     BLOCKED_MODELS.add(model)
                     break
                 print(f'{model}: лимит, {e.delay:.0f} с күтеміз.')
                 time.sleep(e.delay + 1)
+                continue
+            except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
+                print(f'Gemini ({model}) жауап бермеді: {str(e)[:200]}')
+                if attempt == 1:
+                    break
+                time.sleep(3)
                 continue
             except Exception as e:
                 print(f'Gemini ({model}) қатесі: {str(e)[:300]}')
@@ -414,6 +422,9 @@ def main():
             print(f'Әлеуметтік желі посты өткізілді: {post_id}')
             mark_sent(sent, post_id)
             continue
+        if time.time() - START_TIME > MAX_RUN_SECONDS:
+            print('Уақыт шегі аяқталды, қалғаны келесі іске қосуға қалды.')
+            break
         if all(m in BLOCKED_MODELS for m in GEMINI_MODELS):
             print('Барлық модельдің лимиті толды, қалғаны келесі іске қосуға қалды.')
             break
@@ -433,7 +444,7 @@ def main():
             send_post(post, photos, videos)
             mark_sent(sent, post_id)
             print(f'Жіберілді: {post_id} (сурет: {len(photos)}, видео: {len(videos)})')
-            time.sleep(12)
+            time.sleep(5)
         except Exception as ex:
             print(f'Жіберу қатесі: {ex}')
 
