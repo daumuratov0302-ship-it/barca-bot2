@@ -16,6 +16,7 @@ CHANNEL_ID = '@barcelonakz1'
 SOURCE = 'FCBarcelona_Arabic'
 MAX_PER_CHECK = 5
 MAX_VIDEO_MB = 45
+GEMINI_MIN_GAP = 7  # сұраулар арасындағы ең аз үзіліс (секунд), 429 болмауы үшін
 SENT_FILE = 'sent_tg.txt'
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
@@ -151,14 +152,47 @@ def strip_footer(text):
     return '\n'.join(out).strip()
 
 
+class RateLimited(Exception):
+    def __init__(self, delay):
+        self.delay = delay  # None = тәуліктік лимит, күтудің мәні жоқ
+
+
+_last_call = 0.0
+BLOCKED_MODELS = set()
+
+
+def throttle():
+    global _last_call
+    wait = GEMINI_MIN_GAP - (time.time() - _last_call)
+    if wait > 0:
+        time.sleep(wait)
+    _last_call = time.time()
+
+
+def retry_delay(r):
+    if 'PerDay' in r.text:
+        return None
+    m = re.search(r'"retryDelay":\s*"([\d.]+)s"', r.text)
+    if m:
+        return float(m.group(1))
+    try:
+        return float(r.headers.get('Retry-After', 30))
+    except ValueError:
+        return 30.0
+
+
 def ask_gemini(text, model):
     url = ('https://generativelanguage.googleapis.com/v1beta/models/'
            f'{model}:generateContent')
     body = {'contents': [{'parts': [{'text': PROMPT + text}]}]}
+    throttle()
     r = requests.post(url, json=body, timeout=60,
                       headers={'x-goog-api-key': GEMINI_KEY})
+    if r.status_code == 429:
+        raise RateLimited(retry_delay(r))
     r.raise_for_status()
     return r.json()['candidates'][0]['content']['parts'][0]['text'].strip()
+
 
 def is_kazakh(text):
     cyr = [c for c in text if '\u0400' <= c <= '\u04FF']
@@ -172,15 +206,26 @@ def make_post(text):
     if not text:
         return None
     for model in GEMINI_MODELS:
-        for wait in (3, 8):
+        if model in BLOCKED_MODELS:
+            continue
+        for attempt in range(2):
             try:
                 result = ask_gemini(text, model)
                 if result and not re.search(r'[\u0600-\u06FF]', result) and is_kazakh(result):
                     return strip_footer(result)
                 print('Жауап жарамсыз, қайталаймыз.')
+            except RateLimited as e:
+                if e.delay is None or e.delay > 65 or attempt == 1:
+                    kind = 'тәуліктік' if e.delay is None else 'минуттық'
+                    print(f'{model}: {kind} лимит толды, келесі модельге өтеміз.')
+                    BLOCKED_MODELS.add(model)
+                    break
+                print(f'{model}: лимит, {e.delay:.0f} с күтеміз.')
+                time.sleep(e.delay + 1)
+                continue
             except Exception as e:
-                print(f'Gemini ({model}) қатесі: {str(e)[:70]}')
-            time.sleep(wait)
+                print(f'Gemini ({model}) қатесі: {str(e)[:300]}')
+            time.sleep(3)
     return None
 
 
@@ -369,6 +414,9 @@ def main():
             print(f'Әлеуметтік желі посты өткізілді: {post_id}')
             mark_sent(sent, post_id)
             continue
+        if all(m in BLOCKED_MODELS for m in GEMINI_MODELS):
+            print('Барлық модельдің лимиті толды, қалғаны келесі іске қосуға қалды.')
+            break
         post = make_post(text)
         if post and post.strip().upper().startswith('SKIP'):
             print(f'Футболға қатысты емес, өткізілді: {post_id}')
