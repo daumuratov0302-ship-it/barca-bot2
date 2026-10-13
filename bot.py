@@ -164,7 +164,8 @@ def has_arabic(text):
 def ask_gemini(text, model):
     url = ('https://generativelanguage.googleapis.com/v1beta/models/'
            f'{model}:generateContent')
-    body = {'contents': [{'parts': [{'text': PROMPT + text}]}]}
+    body = {'contents': [{'parts': [{'text': PROMPT + text}]}],
+    'generationConfig': {'thinkingConfig': {'thinkingLevel': 'low'}},}
     r = requests.post(url, json=body, timeout=25,
                       headers={'x-goog-api-key': GEMINI_KEY})
     r.raise_for_status()
