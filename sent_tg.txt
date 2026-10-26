@@ -5019,3 +5019,6 @@ FCBarcelona_Arabic/341337
 FCBarcelona_Arabic/341338
 FCBarcelona_Arabic/341339
 FCBarcelona_Arabic/341340
+FCBarcelona_Arabic/341342
+FCBarcelona_Arabic/341344
+FCBarcelona_Arabic/341345
