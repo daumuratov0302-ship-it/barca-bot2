@@ -5563,3 +5563,6 @@ FCBarcelona_Arabic/342001
 FCBarcelona_Arabic/342002
 FCBarcelona_Arabic/342003
 FCBarcelona_Arabic/342004
+FCBarcelona_Arabic/342005
+FCBarcelona_Arabic/342006
+FCBarcelona_Arabic/342008
