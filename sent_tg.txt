@@ -6472,3 +6472,5 @@ FCBarcelona_Arabic/343264
 FCBarcelona_Arabic/343266
 FCBarcelona_Arabic/343267
 FCBarcelona_Arabic/343268
+FCBarcelona_Arabic/343269
+FCBarcelona_Arabic/343270
