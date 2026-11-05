@@ -7013,3 +7013,6 @@ FCBarcelona_Arabic/344036
 FCBarcelona_Arabic/344037
 FCBarcelona_Arabic/344038
 FCBarcelona_Arabic/344039
+FCBarcelona_Arabic/344041
+FCBarcelona_Arabic/344043
+FCBarcelona_Arabic/344044
