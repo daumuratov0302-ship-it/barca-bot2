@@ -7528,3 +7528,6 @@ FCBarcelona_Arabic/344700
 FCBarcelona_Arabic/344702
 FCBarcelona_Arabic/344703
 FCBarcelona_Arabic/344704
+FCBarcelona_Arabic/344705
+FCBarcelona_Arabic/344706
+FCBarcelona_Arabic/344707
