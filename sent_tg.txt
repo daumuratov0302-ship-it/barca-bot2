@@ -7720,3 +7720,7 @@ FCBarcelona_Arabic/345002
 FCBarcelona_Arabic/345003
 FCBarcelona_Arabic/345004
 FCBarcelona_Arabic/345005
+FCBarcelona_Arabic/345006
+FCBarcelona_Arabic/345007
+FCBarcelona_Arabic/345008
+FCBarcelona_Arabic/345009
