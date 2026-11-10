@@ -8001,3 +8001,5 @@ FCBarcelona_Arabic/345431
 FCBarcelona_Arabic/345432
 FCBarcelona_Arabic/345436
 FCBarcelona_Arabic/345440
+FCBarcelona_Arabic/345442
+FCBarcelona_Arabic/345444
