@@ -8472,3 +8472,5 @@ FCBarcelona_Arabic/346012
 FCBarcelona_Arabic/346013
 FCBarcelona_Arabic/346017
 FCBarcelona_Arabic/346018
+FCBarcelona_Arabic/346020
+FCBarcelona_Arabic/346021
