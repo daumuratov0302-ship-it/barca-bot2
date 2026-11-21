@@ -9784,3 +9784,5 @@ FCBarcelona_Arabic/347702
 FCBarcelona_Arabic/347704
 FCBarcelona_Arabic/347705
 FCBarcelona_Arabic/347706
+FCBarcelona_Arabic/347710
+FCBarcelona_Arabic/347712
