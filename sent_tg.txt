@@ -10528,3 +10528,6 @@ FCBarcelona_Arabic/348741
 FCBarcelona_Arabic/348743
 FCBarcelona_Arabic/348747
 FCBarcelona_Arabic/348748
+FCBarcelona_Arabic/348742
+FCBarcelona_Arabic/348749
+FCBarcelona_Arabic/348750
