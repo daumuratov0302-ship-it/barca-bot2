@@ -10719,3 +10719,6 @@ FCBarcelona_Arabic/349011
 FCBarcelona_Arabic/349013
 FCBarcelona_Arabic/349014
 FCBarcelona_Arabic/349016
+FCBarcelona_Arabic/349012
+FCBarcelona_Arabic/349022
+FCBarcelona_Arabic/349023
