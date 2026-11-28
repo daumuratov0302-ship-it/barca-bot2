@@ -11245,3 +11245,5 @@ FCBarcelona_Arabic/349737
 FCBarcelona_Arabic/349738
 FCBarcelona_Arabic/349739
 FCBarcelona_Arabic/349740
+FCBarcelona_Arabic/349742
+FCBarcelona_Arabic/349743
